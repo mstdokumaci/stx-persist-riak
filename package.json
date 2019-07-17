@@ -1,6 +1,6 @@
 {
   "name": "stx-persist-riak",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "riak kv persistence plugin for stx",
   "main": "dist/index.js",
   "scripts": {
