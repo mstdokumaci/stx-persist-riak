@@ -1,3 +1,3 @@
-# stx-persist-riak
+# stx-persist-rocksdb
 
-Riak KV persistance plugin for STX.
+RocksDB persistance plugin for STX.

@@ -1,7 +1,7 @@
 {
-  "name": "stx-persist-riak",
+  "name": "stx-persist-rocksdb",
   "version": "0.0.4",
-  "description": "riak kv persistence plugin for stx",
+  "description": "RocksDB persistence plugin for stx",
   "main": "dist/index.js",
   "scripts": {
     "build": "rollup -c",
@@ -14,25 +14,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mstdokumaci/stx-persist-riak"
+    "url": "git+https://github.com/mstdokumaci/stx-persist-rocksdb"
   },
   "author": "Mustafa Dokumacı <mustafa@foraa.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mstdokumaci/stx-persist-riak/issues"
+    "url": "https://github.com/mstdokumaci/stx-persist-rocksdb/issues"
   },
-  "homepage": "https://mstdokumaci.github.io/stx-persist-riak",
+  "homepage": "https://mstdokumaci.github.io/stx-persist-rocksdb",
   "keywords": [
     "stx",
     "persist",
-    "riak",
+    "rocksdb",
     "kv"
   ],
   "contributors": [
     "Mustafa Dokumacı <mustafa@foraa.com>"
   ],
   "dependencies": {
-    "basho-riak-client": "^2.0.0"
+    "rocksdb": "^4.0.0"
   },
   "devDependencies": {
     "stx": "latest",

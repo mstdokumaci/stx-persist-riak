@@ -1,9 +1,9 @@
 const test = require('tape')
 const { createPersist } = require('stx')
-const { PersistRiak } = require('../dist')
+const { PersistRocksDB } = require('../dist')
 
 test('test write', async t => {
-  const persist = new PersistRiak([ '127.0.0.1' ], 'state')
+  const persist = new PersistRocksDB('state')
   await createPersist({ item1: 'value1' }, persist)
   await persist.stop()
 
@@ -11,7 +11,7 @@ test('test write', async t => {
 })
 
 test('test read', async t => {
-  const persist = new PersistRiak([ '127.0.0.1' ], 'state')
+  const persist = new PersistRocksDB('state')
   const state = await createPersist({}, persist)
 
   t.same(
@@ -28,7 +28,7 @@ test('test read', async t => {
 })
 
 test('test read after delete', async t => {
-  const persist = new PersistRiak([ '127.0.0.1' ], 'state')
+  const persist = new PersistRocksDB('state')
   const state = await createPersist({}, persist)
 
   t.same(

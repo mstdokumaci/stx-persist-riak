@@ -1,106 +1,61 @@
-const Riak = require('basho-riak-client')
+const rocksdb = require('rocksdb')
 
 const define = function (object, key, value) {
   Object.defineProperty(object, key, { value, configurable: true })
 }
 
-const PersistRiak = function (nodes, bucket) {
-  this.nodes = nodes
-  this.bucket = bucket
-  this.syncing = 0
-  this.onSynced = null
+const PersistRocksDB = function (name) {
+  this.db = rocksdb(name)
 }
 
-define(PersistRiak.prototype, 'start', function () {
-  return new Promise((resolve, reject) => {
-    this.client = new Riak.Client(
-      this.nodes, error => error ? reject(error) : resolve()
-    )
-  })
+define(PersistRocksDB.prototype, 'start', function () {
+  return new Promise(
+    (resolve, reject) => this.db.open(error => error ? reject(error) : resolve())
+  )
 })
 
-define(PersistRiak.prototype, 'store', function (key, value) {
-  this.syncing++
-  this.client.storeValue({ bucket: this.bucket, key, value }, error => {
+define(PersistRocksDB.prototype, 'store', function (key, value) {
+  this.db.put(key, JSON.stringify(value), error => {
     if (error) {
       console.error(error)
     }
-    this.synced()
   })
 })
 
-define(PersistRiak.prototype, 'remove', function (key) {
-  this.syncing++
-  this.client.deleteValue({ bucket: this.bucket, key }, error => {
+define(PersistRocksDB.prototype, 'remove', function (key) {
+  this.db.del(key, error => {
     if (error) {
       console.error(error)
     }
-    this.synced()
   })
 })
 
-define(PersistRiak.prototype, 'synced', function () {
-  if (--this.syncing === 0 && this.onSynced) {
-    const onSynced = this.onSynced
-    this.onSynced = null
-    setImmediate(onSynced)
-  }
-})
-
-define(PersistRiak.prototype, 'load', function (loadLeaf) {
-  const allIds = []
+define(PersistRocksDB.prototype, 'load', function (loadLeaf) {
+  const iterator = this.db.iterator({
+    keyAsBuffer: false,
+    valueAsBuffer: false
+  })
 
   return new Promise((resolve, reject) => {
-    this.client.listKeys(
-      {
-        bucket: this.bucket
-      },
-      (error, result) => {
-        if (error) {
-          reject(error)
-        } else {
-          allIds.push(...result.keys)
-
-          if (result.done) {
-            resolve()
-          }
-        }
+    const consumeIterator = (error, key, value) => {
+      if (error) {
+        reject(error)
+      } else if (key && value) {
+        loadLeaf(key, JSON.parse(value))
+        iterator.next(consumeIterator)
+      } else {
+        resolve()
       }
-    )
-  })
-    .then(() => Promise.all(allIds.map(id => new Promise((resolve, reject) => {
-      this.client.fetchValue(
-        {
-          bucket: this.bucket,
-          key: id,
-          convertToJs: true
-        },
-        (error, result) => {
-          if (error) {
-            reject(error)
-          } else if (result.values.length) {
-            loadLeaf(id, result.values.shift().value)
-            resolve()
-          } else {
-            resolve()
-          }
-        }
-      )
-    }))))
-})
-
-define(PersistRiak.prototype, 'stop', function () {
-  return new Promise((resolve, reject) => {
-    if (this.syncing) {
-      this.onSynced = () => this.client.stop(
-        error => error ? reject(error) : resolve()
-      )
-    } else {
-      this.client.stop(
-        error => error ? reject(error) : resolve()
-      )
     }
+
+    iterator.next(consumeIterator)
   })
 })
 
-export { PersistRiak }
+define(PersistRocksDB.prototype, 'stop', function () {
+  return new Promise((resolve, reject) => this.db.close(
+    error => error ? reject(error) : resolve()
+  ))
+})
+
+export { PersistRocksDB }
