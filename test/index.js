@@ -26,3 +26,18 @@ test('test read', async t => {
 
   t.end()
 })
+
+test('test read after delete', async t => {
+  const persist = new PersistRiak([ '127.0.0.1' ], 'state')
+  const state = await createPersist({}, persist)
+
+  t.same(
+    state.serialize(),
+    {},
+    'state = {}'
+  )
+
+  await persist.stop()
+
+  t.end()
+})
