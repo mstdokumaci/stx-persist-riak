@@ -1,6 +1,6 @@
 {
   "name": "stx-persist-rocksdb",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "RocksDB persistence plugin for stx",
   "main": "dist/index.js",
   "scripts": {
