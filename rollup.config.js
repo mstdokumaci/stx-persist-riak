@@ -1,6 +1,5 @@
 import localResolve from 'rollup-plugin-local-resolve'
 import nodeResolve from 'rollup-plugin-node-resolve'
-import buble from 'rollup-plugin-buble'
 
 export default [
   {
@@ -18,12 +17,11 @@ export default [
     output: {
       file: 'dist/es.js',
       format: 'es',
-      name: 'stx',
+      name: 'stx-persist-rocksdb',
       sourcemap: 'inline'
     },
     plugins: [
-      nodeResolve({ browser: true }),
-      buble({ include: 'src/**' })
+      nodeResolve({ browser: true })
     ]
   }
 ]
